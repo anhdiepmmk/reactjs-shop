@@ -148,16 +148,13 @@ class Feed extends Component {
     this.setState({
       editLoading: true
     });
-    const formData = new FormData();
-    formData.append('title', postData.title);
-    formData.append('content', postData.content);
-    formData.append('image', postData.image);
 
-    let graphqlQuery = {
+    const formData = new FormData();
+    const operations = JSON.stringify({
       query: `
-        mutation {
-          createPost(postInput: {title: "${postData.title}", content: "${postData.content}", imageUrl: "some url"}) {
-            _id
+        mutation ($title: String!, $content: String!, $file: Upload!) { 
+          createPost(postInput: {title: $title, content: $content, file : $file }){
+           _id
             title
             content
             imageUrl
@@ -165,17 +162,20 @@ class Feed extends Component {
               name
             }
             createdAt
-          }
+          }  
         }
-      `
-    };
+      `,
+      variables: { "title": postData.title, "content": postData.content, "file": null }
+    })
+    formData.append('operations', operations);
+    formData.append('map', JSON.stringify({ 0: ["variables.file"] }));
+    formData.append('0', postData.image);
 
     fetch('http://localhost:8080/graphql', {
       method: 'POST',
-      body: JSON.stringify(graphqlQuery),
+      body: formData,
       headers: {
         Authorization: 'Bearer ' + this.props.token,
-        'Content-Type': 'application/json'
       }
     })
       .then(res => {
