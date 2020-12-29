@@ -212,6 +212,7 @@ class Feed extends Component {
           createdAt: resData.data[key].createdAt,
           imagePath: resData.data[key].imageUrl
         };
+
         this.setState(prevState => {
           let updatedPosts = [...prevState.posts];
           if (prevState.editPost) {
@@ -220,7 +221,9 @@ class Feed extends Component {
             );
             updatedPosts[postIndex] = post;
           } else {
-            updatedPosts.pop();
+            if (prevState.posts.length >= 2) {
+              updatedPosts.pop();
+            }
             updatedPosts.unshift(post);
           }
           return {
@@ -269,6 +272,9 @@ class Feed extends Component {
         return res.json();
       })
       .then(resData => {
+        if (resData.errors) {
+          throw new Error('Deleting the post failed!')
+        }
         console.log(resData);
         this.loadPosts();
         // this.setState(prevState => {
