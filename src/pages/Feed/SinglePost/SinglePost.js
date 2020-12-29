@@ -15,8 +15,6 @@ class SinglePost extends Component {
   componentDidMount() {
     const postId = this.props.match.params.postId;
 
-    alert(postId)
-
     const graphqlQuery = {
       query: `
         {
